@@ -12,6 +12,7 @@
 		<property name="classesToBeBound">
 			<list>
 				<value>com.bean.Store</value>
+				<value>com.bean.StoreList</value>
 			</list>
 		</property>
 	 </bean>
