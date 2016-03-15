@@ -3,6 +3,8 @@ package com.controller;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.bean.Store;
 import com.bean.StoreList;
 import com.dao.StoreDAO;
+import com.util.Geocoder;
 
 @Controller
 public class StoreController {
@@ -64,9 +67,23 @@ public class StoreController {
 		return response;
 	}
 	
-	@RequestMapping(method=RequestMethod.GET, value="/locateStore/{lat}/{lng}/{dist}")
-	public @ResponseBody String locateStore(@PathVariable String lat,@PathVariable String lng,@PathVariable String dist) {
+	@RequestMapping(method=RequestMethod.GET, value="/locateStore/{zip}/{dist}")
+	public @ResponseBody String locateStore(@PathVariable String zip,@PathVariable String dist) {
+		String response = Geocoder.getLatLng(zip);
+		String lat = Geocoder.getLatitude(response);
+		String lng = Geocoder.getLongitude(response);
 		List<Store> storeList = StoreDAO.locateStore(Double.parseDouble(lat),Double.parseDouble(lng),Integer.parseInt(dist));
+		StoreList list = new StoreList();
+		list.setStores(storeList);
+		StringWriter out = new StringWriter();
+		jaxb2Mashaller.marshal(list, new StreamResult(out));
+		return out.toString();
+	}
+	
+	@RequestMapping(method=RequestMethod.GET, value="/getAllStores")
+	public @ResponseBody String getAllStores() {
+		
+		List<Store> storeList = StoreDAO.getAllStores();
 		StoreList list = new StoreList();
 		list.setStores(storeList);
 		StringWriter out = new StringWriter();

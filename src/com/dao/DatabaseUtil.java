@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class DatabaseUtil {
  
@@ -26,10 +27,10 @@ public class DatabaseUtil {
 	return con;
    }
    
-   public static void cleanUp(Connection con, PreparedStatement pst){
+   public static void cleanUp(Connection con, Statement st){
 	  try{
-		 if(pst!=null){
-			   pst.close();
+		 if(st!=null){
+			   st.close();
 		 } 
 		 if(con!=null){
 			   con.close();

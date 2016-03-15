@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,8 @@ public class StoreDAO {
 	private static final String INSERT_QUERY = " INSERT INTO store VALUES (?,?,?,?,?)";
 	private static final String UPDATE_QUERY = " UPDATE store SET name = ?, address = ?,latitude=?,longitude=? WHERE id = ?";
 	private static final String DELETE_QUERY = " DELETE FROM store WHERE id = ?";
-	private static final String STORE_LOCATOR_QUERY = "SELECT id, name,address,latitude,longitude,( 3959 * acos( cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) AS distance FROM store HAVING distance < ?;";
+	private static final String STORE_LOCATOR_QUERY = "SELECT id, name,address,latitude,longitude,( 3959 * acos( cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) AS distance FROM store HAVING distance < ?";
+	private static final String GET_ALL_STORES = "Select * from Store limit 20";
 	
 	public static int addStore(Store newStore) {
 		Connection con = DatabaseUtil.getConnection();
@@ -94,6 +96,30 @@ public class StoreDAO {
 			e.printStackTrace();
 		}finally{
 			DatabaseUtil.cleanUp(con,pst);
+		}
+		return storeList;
+	}
+    
+    public static List<Store> getAllStores() {
+		Connection con = DatabaseUtil.getConnection();
+		Statement st = null;
+		List<Store> storeList = new ArrayList<Store>();
+		try {
+			st = con.createStatement();
+			ResultSet resultSet = st.executeQuery(GET_ALL_STORES);
+		    while (resultSet.next()) {
+              Store store = new Store();
+              store.setId(resultSet.getInt("id"));
+		      store.setName(resultSet.getString("name"));
+		      store.setAddress(resultSet.getString("address"));
+		      store.setLatitude(resultSet.getDouble("latitude"));
+              store.setLongitude(resultSet.getDouble("longitude"));
+              storeList.add(store);
+            }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally{
+			DatabaseUtil.cleanUp(con,st);
 		}
 		return storeList;
 	}
